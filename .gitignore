@@ -1,0 +1,4 @@
+.DS_Store
+application/config/development
+system/_cache
+application/logs
