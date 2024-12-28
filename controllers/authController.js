@@ -46,19 +46,19 @@ const register = async (req, res) => {
           message: "user register successful",
         });
       } else {
-        return res.status(400).send({
+        return res.status(400).json({
           status: true,
           message: "user register fail",
         });
       }
     } else {
-      return res.status(400).send({
+      return res.status(400).json({
         status: false,
         message: "wait",
       });
     }
   } catch (error) {
-    return res.status(503).send({
+    return res.status(503).json({
       status: false,
       message: error.message,
     });

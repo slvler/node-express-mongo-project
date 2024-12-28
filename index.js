@@ -15,7 +15,7 @@ app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use("/api/v1/auth", auth);
-app.use("/api/v1/product", product);
+app.use("/api/v1/products", product);
 
 const PORT = process.env.PORT || 3000;
 

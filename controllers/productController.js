@@ -21,31 +21,82 @@ const create = async (req, res) => {
     }
     let slugTxt = slug(req.body.name);
 
-    const newItem = new product({
-        name: req.body.name,
-        description: req.body.description,
-        price: req.body.price,
-        stock: req.body.stock,
-        status: req.body.status,
-        slug: slugTxt
-    });
+    try{
+        const newItem = new product({
+            name: req.body.name,
+            description: req.body.description,
+            price: req.body.price,
+            stock: req.body.stock,
+            status: req.body.status,
+            slug: slugTxt
+        });
 
-    const savedProduct = newItem.save();
+        const savedProduct = newItem.save();
 
-    if (savedProduct) {
-        return res.status(201).send({
-            message: "product create successful",
-            status: true,
-            data: newItem
-        })
-    } else {
-        return res.status(400).send({
-            status: true,
-            message: "product register fail",
+        if (savedProduct) {
+            return res.status(201).json({
+                message: "product create successful",
+                status: true,
+                data: newItem
+            })
+        } else {
+            return res.status(400).json({
+                status: true,
+                message: "product register fail",
+            });
+        }
+    }catch (error) {
+        return res.status(503).json({
+            status: false,
+            message: error.message,
         });
     }
+}
 
+const show = async (req, res) => {
+    try{
+        const item = await product.findById({_id: req.params.id});
+        if (item){
+            return res.status(200).send({
+                message: "product show",
+                status: true,
+                data: item
+            });
+        }else{
+            return res.status(404).send({
+                message: "product not found",
+                status: false
+            });
+        }
+    }catch (error) {
+        return res.status(503).json({
+            status: false,
+            message: error.message,
+        });
+    }
+}
+
+const destroy = async(req, res) => {
+    try{
+        const item = await product.findOneAndDelete({_id: req.params.id});
+        if (item){
+            return res.status(200).send({
+                message: "product delete",
+                status: true
+            });
+        }else{
+            return res.status(404).send({
+                message: "product not found",
+                status: false
+            });
+        }
+    }catch (error) {
+        return res.status(503).json({
+            status: false,
+            message: error.message,
+        });
+    }
 }
 
 
-export { index, create }
+export { index, create, show, destroy }
