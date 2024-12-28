@@ -1,7 +1,7 @@
 import Joi from "joi";
 
 const registerValidation = (data) => {
-  const registerSchame = Joi.object({
+  const registerScheme = Joi.object({
     name: Joi.string().min(3).max(18).required().messages({
       "string.base": `Username should be a type of 'text'.`,
       "string.empty": `Username cannot be an empty field.`,
@@ -13,7 +13,15 @@ const registerValidation = (data) => {
     password: Joi.string().min(6).max(255).required(),
   });
 
-  return registerSchame.validate(data);
+  return registerScheme.validate(data);
 };
 
-export default registerValidation;
+const loginValidation = (data) => {
+  const loginScheme = Joi.object({
+    email: Joi.string().min(6).max(255).required(),
+    password: Joi.string().min(6).max(255).required(),
+  });
+  return loginScheme.validate(data);
+};
+
+export { registerValidation, loginValidation };

@@ -1,9 +1,14 @@
-import registerValidation from "../validation/authValidation.js";
+import {
+  registerValidation,
+  loginValidation,
+} from "../validation/authValidation.js";
 import { user } from "../models/user.js";
 import crypto from "crypto";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 
-const register = async (request, res) => {
-  const result = registerValidation(request.body);
+const register = async (req, res) => {
+  const result = registerValidation(req.body);
   console.log(result.error);
 
   if (result.error) {
@@ -14,30 +19,31 @@ const register = async (request, res) => {
     });
   }
   try {
-    const emailExit = await user.findOne({ email: request.body.email });
+    const emailExit = await user.findOne({ email: req.body.email });
     if (!emailExit) {
-      const salt = crypto.randomBytes(128).toString("base64");
-      const hash = crypto.pbkdf2Sync(
-        request.body.password,
-        salt,
-        10000,
-        512,
-        "sha512",
-      );
+      // const salt = crypto.randomBytes(128).toString("base64");
+      // const hash = crypto.pbkdf2Sync(
+      //   request.body.password,
+      //   salt,
+      //   10000,
+      //   512,
+      //   "sha512",
+      // );
 
-      console.log(hash);
+      const salt = await bcrypt.genSalt(10);
+      const hash = await bcrypt.hash(req.body.password, salt);
 
       const UserDB = new user({
-        email: request.body.email,
+        email: req.body.email,
         password: hash,
-        name: request.body.name,
+        name: req.body.name,
       });
       const savedUser = await UserDB.save();
 
       if (savedUser) {
         return res.status(200).json({
           success: true,
-          message: "user register succesfull",
+          message: "user register successful",
         });
       } else {
         return res.status(400).send({
@@ -59,13 +65,41 @@ const register = async (request, res) => {
   }
 };
 
-const login = async (request, response) => {
-  try {
-    return response.status(200).send({
-      status: true,
-      message: "burada",
+const login = async (req, res) => {
+  const result = loginValidation(req.body);
+  if (result.error) {
+    return res.status(422).json({
+      status: false,
+      message: result.error.details[0].message,
     });
-  } catch (error) {}
+  }
+
+  try {
+    const result = user.findOne({ email: req.body.email });
+
+    if (result) {
+      const token = jwt.sign(
+        { _id: result._id, email: req.body.email },
+        process.env.TOKEN_SECRET,
+      );
+
+      return res.status(200).send({
+        status: true,
+        message: "successful",
+        token: token,
+      });
+    } else {
+      return res.status(500).send({
+        status: false,
+        message: "error user",
+      });
+    }
+  } catch (error) {
+    return res.status(503).send({
+      status: false,
+      message: error.message,
+    });
+  }
 };
 
 export { register, login };
