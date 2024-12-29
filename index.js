@@ -6,6 +6,8 @@ import bodyParser from "body-parser";
 //router
 import auth from "./routes/auth.js";
 import product from "./routes/product.js";
+import cart from './routes/cart.js'
+import cartItem from "./routes/cartItem.js";
 
 const app = express();
 
@@ -16,6 +18,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use("/api/v1/auth", auth);
 app.use("/api/v1/products", product);
+app.use("/api/v1/cart", cart)
+app.use("/api/v1/cart-item", cartItem)
 
 const PORT = process.env.PORT || 3000;
 

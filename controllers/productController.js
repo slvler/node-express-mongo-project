@@ -1,9 +1,9 @@
-import { product } from '../models/product.js'
+import Product from '../models/productModel.js'
 import { createValidation, updateValidation } from "../validation/productValidation.js";
 import slug from 'slug'
 
 const index = async (req, res) => {
-    const products = await product.find();
+    const products = await Product.find();
     res.status(200).json({
         status: true,
         data: products,
@@ -22,7 +22,7 @@ const create = async (req, res) => {
     let slugTxt = slug(req.body.name);
 
     try{
-        const newItem = new product({
+        const newItem = new Product({
             name: req.body.name,
             description: req.body.description,
             price: req.body.price,
@@ -55,7 +55,7 @@ const create = async (req, res) => {
 
 const show = async (req, res) => {
     try{
-        const item = await product.findById({_id: req.params.id});
+        const item = await Product.findById({_id: req.params.id});
         if (item){
             return res.status(200).send({
                 message: "product show",
@@ -78,7 +78,7 @@ const show = async (req, res) => {
 
 const update = async (req, res) => {
 
-    const item = await product.findById({_id: req.params.id});
+    const item = await Product.findById({_id: req.params.id});
 
     const result = updateValidation(req.body)
     if (result.error) {
@@ -95,7 +95,7 @@ const update = async (req, res) => {
             slugTxt = slug(req.body.name);
         }
 
-        const update = await product.findByIdAndUpdate(
+        const update = await Product.findByIdAndUpdate(
             { _id: req.params.id },
             {
                 $set:{
@@ -114,7 +114,7 @@ const update = async (req, res) => {
                 status: true,
                 message: "update successful",
                 data: update
-            })
+            });
         }else{
             return res.status(404).send({
                 message: "update failed",
@@ -141,7 +141,7 @@ const update = async (req, res) => {
 
 const destroy = async(req, res) => {
     try{
-        const item = await product.findOneAndDelete({_id: req.params.id});
+        const item = await Product.findOneAndDelete({_id: req.params.id});
         if (item){
             return res.status(200).send({
                 message: "product delete",
