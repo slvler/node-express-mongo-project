@@ -1,5 +1,5 @@
 import { product } from '../models/product.js'
-import { createValidation } from "../validation/productValidation.js";
+import { createValidation, updateValidation } from "../validation/productValidation.js";
 import slug from 'slug'
 
 const index = async (req, res) => {
@@ -76,6 +76,69 @@ const show = async (req, res) => {
     }
 }
 
+const update = async (req, res) => {
+
+    const item = await product.findById({_id: req.params.id});
+
+    const result = updateValidation(req.body)
+    if (result.error) {
+        return res.status(422).json({
+            status: false,
+            message: result.error.details[0].message,
+        });
+    }
+
+    if (item){
+        let slugTxt;
+
+        if (req.body.name){
+            slugTxt = slug(req.body.name);
+        }
+
+        const update = await product.findByIdAndUpdate(
+            { _id: req.params.id },
+            {
+                $set:{
+                    name: req.body.name,
+                    description: req.body.description,
+                    price: req.body.price,
+                    stock: req.body.stock,
+                    status: req.body.status,
+                    slug: slugTxt ?? item.slug
+                }
+            });
+
+        if (update){
+
+            return res.status(200).json({
+                status: true,
+                message: "update successful",
+                data: update
+            })
+        }else{
+            return res.status(404).send({
+                message: "update failed",
+                status: false
+            });
+        }
+
+    }else{
+        return res.status(404).send({
+            message: "product not found",
+            status: false
+        });
+    }
+
+    return res.status(200).json({
+        status: true,
+        message: "successful",
+        data: req.params.id,
+        item: item
+    })
+}
+
+
+
 const destroy = async(req, res) => {
     try{
         const item = await product.findOneAndDelete({_id: req.params.id});
@@ -99,4 +162,4 @@ const destroy = async(req, res) => {
 }
 
 
-export { index, create, show, destroy }
+export { index, create, show, destroy, update }
