@@ -28,6 +28,7 @@ const register = async (req, res) => {
         email: req.body.email,
         password: hash,
         name: req.body.name,
+        isAdmin: true
       });
       const savedUser = await UserDB.save();
 
